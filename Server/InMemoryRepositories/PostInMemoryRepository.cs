@@ -32,6 +32,30 @@ public class PostInMemoryRepository : IPostRepository
 
         posts.Remove(postToRemove);
         
+        // Fjern alle kommentarer
+        var comments = posts.FindAll(p => p.CommentedOnPostId == id);
+        foreach (var comment in comments) DeleteAsync(comment.PostId);
+        
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAllFromSubforumAsync(int subforumId)
+    {
+        foreach (var post in posts)
+        {
+            if (post.PostId == subforumId) DeleteAsync(post.PostId);
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAllFromUserAsync(int userId)
+    {
+        foreach (var post in posts)
+        {
+            if (post.AuthorId == userId) DeleteAsync(post.PostId);
+        }
+        
         return Task.CompletedTask;
     }
 
