@@ -19,7 +19,7 @@ public class OpenSubforumView : IView
         _userRepository = userRepository;
     }
     
-    public void Display()
+    public async void Display()
     {
         // Null tjek
         if (_viewHandler.ViewState.CurrentSubforum is null)
@@ -42,7 +42,7 @@ public class OpenSubforumView : IView
         Console.WriteLine("_________________________________________________");
 
         // Henter alle posts fra dette forum
-        var posts = _postRepository.GetMany().ToList()
+        var posts = (await _postRepository.GetMany()).ToList()
             .FindAll(p => p.SubforumId == _viewHandler.ViewState.CurrentSubforum.SubforumId);
 
         var comments = posts.FindAll(p => p.CommentedOnPostId != null);

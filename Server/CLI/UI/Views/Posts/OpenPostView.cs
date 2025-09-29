@@ -19,7 +19,7 @@ public class OpenPostView : IView
         _userRepository = userRepository;
         _reactionRepository = reactionRepository;
     }
-    public void Display()
+    public async void Display()
     {
         if (_viewHandler.ViewState.CurrentPost is null)
         {
@@ -53,7 +53,7 @@ public class OpenPostView : IView
 
         
         // comments
-        var commentsOnCurrentPost = _postRepository.GetMany().ToList().FindAll(c => c.CommentedOnPostId == _viewHandler.ViewState.CurrentPost.PostId);
+        var commentsOnCurrentPost = (await _postRepository.GetMany()).ToList().FindAll(c => c.CommentedOnPostId == _viewHandler.ViewState.CurrentPost.PostId);
         foreach (var comment in commentsOnCurrentPost)
         {
             Console.WriteLine($"    -- ID: {comment.PostId} | By: {_userRepository.GetSingleAsync(comment.AuthorId).Result.Username}");

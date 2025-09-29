@@ -10,5 +10,5 @@ public interface IPostRepository
     Task DeleteAllFromSubforumAsync(int subforumId);
     Task DeleteAllFromUserAsync(int userId);
     Task<Post> GetSingleAsync(int id);
-    IQueryable<Post> GetMany();
+    Task<IQueryable<Post>> GetMany();
 }
