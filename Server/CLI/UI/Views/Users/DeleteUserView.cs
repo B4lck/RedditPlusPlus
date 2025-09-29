@@ -2,20 +2,9 @@
 
 namespace CLI.UI.Views.Users;
 
-public class DeleteUserView : IView
+public class DeleteUserView(ViewHandler viewHandler, IUserRepository userRepository, IPostRepository postRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly IUserRepository _userRepository;
-    private readonly IPostRepository _postRepository;
-    
-    public DeleteUserView(ViewHandler viewHandler, IUserRepository userRepository, IPostRepository postRepository)
-    {
-        _viewHandler = viewHandler;
-        _userRepository = userRepository;
-        _postRepository = postRepository;
-    }
-
-
     public void Display()
     {
         Console.WriteLine("-- Delete User --");
@@ -25,7 +14,7 @@ public class DeleteUserView : IView
         Console.WriteLine("-----------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -35,15 +24,15 @@ public class DeleteUserView : IView
                     break;
                 default:
                     int userId = int.Parse(input);
-                    _userRepository.DeleteAsync(userId);
-                    _postRepository.DeleteAllFromUserAsync(userId);
+                    await userRepository.DeleteAsync(userId);
+                    await postRepository.DeleteAllFromUserAsync(userId);
                     break;
             }
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.DeleteUser);
+            Console.WriteLine(e);
         }
     }
 }

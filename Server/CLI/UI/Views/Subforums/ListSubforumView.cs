@@ -1,19 +1,10 @@
 ﻿using RepositoryContracts;
 
-namespace CLI.UI.Views.Forums;
+namespace CLI.UI.Views.Subforums;
 
-public class ListSubforumView : IView
+public class ListSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly ISubforumRepository _subforumRepository;
-    
-    public ListSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository)
-    {
-        _viewHandler = viewHandler;
-        _subforumRepository = subforumRepository;
-    }
-
-
     public void Display()
     {
         Console.WriteLine("-- Subforums listed --");
@@ -22,14 +13,14 @@ public class ListSubforumView : IView
         Console.WriteLine("Type 'exit' to exit.");
         Console.WriteLine("----------------------");
 
-        var subforums = _subforumRepository.GetMany();
+        var subforums = subforumRepository.GetMany();
         foreach (var subforum in subforums)
         {
             Console.WriteLine($"- Name: {subforum.Name} - Id: {subforum.SubforumId} - Mod Id: {subforum.ModeratorId}");
         }
     }
 
-    public async void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -40,18 +31,18 @@ public class ListSubforumView : IView
                 default:
                     int sfId = int.Parse(input);
                     
-                    var subforum = await _subforumRepository.GetSingleAsync(sfId);
-                    _viewHandler.ViewState.CurrentSubforum = subforum;
+                    var subforum = await subforumRepository.GetSingleAsync(sfId);
+                    viewHandler.ViewState.CurrentSubforum = subforum;
                     
-                    _viewHandler.GoToView(Views.OpenSubforum);
+                    await viewHandler.GoToView(Views.OpenSubforum);
                     
                     break;
             }
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.ListSubforums);
+            await viewHandler.GoToView(Views.ListSubforums);
             Console.WriteLine(e.Message);
         }
     }

@@ -3,17 +3,8 @@ using RepositoryContracts;
 
 namespace CLI.UI.Views.Users;
 
-public class CreateUserView : IView
+public class CreateUserView(ViewHandler viewHandler, IUserRepository userRepository) : IView
 {
-    private ViewHandler _viewHandler;
-    private IUserRepository _userRepository;
-    
-    public CreateUserView(ViewHandler viewHandler, IUserRepository userRepository)
-    {
-        this._viewHandler = viewHandler;
-        this._userRepository = userRepository;
-    }
-    
     public void Display()
     {
         Console.WriteLine("-- Create User --");
@@ -23,14 +14,14 @@ public class CreateUserView : IView
         Console.WriteLine("-----------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
             switch (input.ToLower())
             {
                 case "exit":
-                    _viewHandler.GoToMainMenu();
+                    await viewHandler.GoToMainMenu();
                     break;
                 default:
                     var args = input.Split(' ');
@@ -39,10 +30,10 @@ public class CreateUserView : IView
                     var username = args[0];
                     var password = args[1];
 
-                    if (_userRepository.GetMany().Any(u => u.Username == username))
+                    if (userRepository.GetMany().Any(u => u.Username == username))
                         break;
 
-                    _userRepository.AddAsync(new User()
+                    await userRepository.AddAsync(new User()
                     {
                         Username = username,
                         Password = password
@@ -51,11 +42,12 @@ public class CreateUserView : IView
                     break;
             }
             
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.CreateUser);
+            await viewHandler.GoToView(Views.CreateUser);
+            Console.WriteLine(e.Message);
         }
     }
 }

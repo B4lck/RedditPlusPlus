@@ -3,27 +3,18 @@ using RepositoryContracts;
 
 namespace CLI.UI.Views.Posts;
 
-public class OpenPostView : IView
+public class OpenPostView(
+    ViewHandler viewHandler,
+    IPostRepository postRepository,
+    IUserRepository userRepository,
+    IReactionRepository reactionRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly ISubforumRepository _subforumRepository;
-    private readonly IPostRepository _postRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly IReactionRepository _reactionRepository;
-    
-    public OpenPostView(ViewHandler viewHandler, ISubforumRepository subforumRepository, IPostRepository postRepository, IUserRepository userRepository, IReactionRepository reactionRepository)
-    {
-        _viewHandler = viewHandler;
-        _subforumRepository = subforumRepository;
-        _postRepository = postRepository;
-        _userRepository = userRepository;
-        _reactionRepository = reactionRepository;
-    }
     public async void Display()
     {
-        if (_viewHandler.ViewState.CurrentPost is null)
+        if (viewHandler.ViewState.CurrentPost is null)
         {
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
             return;
         }
         
@@ -38,14 +29,14 @@ public class OpenPostView : IView
         Console.WriteLine("Example: remove [comment id]");
         Console.WriteLine("");
         Console.WriteLine("");
-        Console.WriteLine($"-- {_viewHandler.ViewState.CurrentPost.Title} --");
-        Console.WriteLine($"Author: {_userRepository.GetSingleAsync(_viewHandler.ViewState.CurrentPost.AuthorId).Result.Username}");
+        Console.WriteLine($"-- {viewHandler.ViewState.CurrentPost.Title} --");
+        Console.WriteLine($"Author: {userRepository.GetSingleAsync(viewHandler.ViewState.CurrentPost.AuthorId).Result.Username}");
         Console.WriteLine("-");
-        Console.WriteLine(_viewHandler.ViewState.CurrentPost.Content);
+        Console.WriteLine(viewHandler.ViewState.CurrentPost.Content);
         Console.WriteLine("-----------------------------");
         
         // reactions
-        var reactionsOfPost = _reactionRepository.GetMany().ToList().FindAll(r => r.PostId == _viewHandler.ViewState.CurrentPost.PostId);
+        var reactionsOfPost = reactionRepository.GetMany().ToList().FindAll(r => r.PostId == viewHandler.ViewState.CurrentPost.PostId);
         var likes = reactionsOfPost.FindAll(r => r.Type == "like");
         var dislikes = reactionsOfPost.FindAll(r => r.Type == "dislike");
         Console.WriteLine($"Likes: {likes.Count} - Dislikes: {dislikes.Count}");
@@ -53,16 +44,16 @@ public class OpenPostView : IView
 
         
         // comments
-        var commentsOnCurrentPost = (await _postRepository.GetMany()).ToList().FindAll(c => c.CommentedOnPostId == _viewHandler.ViewState.CurrentPost.PostId);
+        var commentsOnCurrentPost = postRepository.GetMany().ToList().FindAll(c => c.CommentedOnPostId == viewHandler.ViewState.CurrentPost.PostId);
         foreach (var comment in commentsOnCurrentPost)
         {
-            Console.WriteLine($"    -- ID: {comment.PostId} | By: {_userRepository.GetSingleAsync(comment.AuthorId).Result.Username}");
+            Console.WriteLine($"    -- ID: {comment.PostId} | By: {userRepository.GetSingleAsync(comment.AuthorId).Result.Username}");
             Console.WriteLine($"        {comment.Content}");
             Console.WriteLine("");
         }
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -71,19 +62,19 @@ public class OpenPostView : IView
             switch (loweredSplitInput[0])
             {
                 case "exit":
-                    _viewHandler.GoToView(Views.OpenSubforum);
+                    await viewHandler.GoToView(Views.OpenSubforum);
                     break;
                 case "comment":
                     var userId = int.Parse(loweredSplitInput[1]);
                     var content = input.Substring(loweredSplitInput[0].Length + loweredSplitInput[1].Length + 2);
-                    _postRepository.AddAsync(new Post()
+                    await postRepository.AddAsync(new Post()
                     {
                         AuthorId = userId,
                         Content = content,
-                        SubforumId = _viewHandler.ViewState.CurrentPost.SubforumId,
-                        CommentedOnPostId = _viewHandler.ViewState.CurrentPost.PostId,
+                        SubforumId = viewHandler.ViewState.CurrentPost!.SubforumId,
+                        CommentedOnPostId = viewHandler.ViewState.CurrentPost.PostId,
                     });
-                    _viewHandler.GoToView(Views.OpenPost);
+                    await viewHandler.GoToView(Views.OpenPost);
                     break;
                 case "react":
                     userId = int.Parse(loweredSplitInput[1]);
@@ -92,33 +83,34 @@ public class OpenPostView : IView
                     if (reaction != "like" && reaction != "dislike")
                         throw new Exception("Invalid reaction");
                     
-                    _reactionRepository.AddAsync(new Reaction()
+                    await reactionRepository.AddAsync(new Reaction()
                     {
                         ByUserId = userId,
-                        PostId = _viewHandler.ViewState.CurrentPost.PostId,
+                        PostId = viewHandler.ViewState.CurrentPost!.PostId,
                         Type = reaction
                     });
-                    _viewHandler.GoToView(Views.OpenPost);
+                    await viewHandler.GoToView(Views.OpenPost);
                     break;
                 case "remove":
                     if (loweredSplitInput.Length == 1)
                     {
-                        _postRepository.DeleteAsync(_viewHandler.ViewState.CurrentPost.PostId);
-                        _viewHandler.GoToView(Views.OpenSubforum);
+                        await postRepository.DeleteAsync(viewHandler.ViewState.CurrentPost!.PostId);
+                        await viewHandler.GoToView(Views.OpenSubforum);
                     }
                     else
                     {
                         var commentId = int.Parse(loweredSplitInput[1]);
-                        _postRepository.DeleteAsync(commentId);
+                        await postRepository.DeleteAsync(commentId);
                         
-                        _viewHandler.GoToView(Views.OpenPost);
+                        await viewHandler.GoToView(Views.OpenPost);
                     }
                     break;
             }
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.OpenPost);
+            viewHandler.GoToView(Views.OpenPost);
+            Console.WriteLine(e);
         }
     }
 }

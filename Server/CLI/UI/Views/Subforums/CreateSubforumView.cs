@@ -1,22 +1,14 @@
 ﻿using Entities;
 using RepositoryContracts;
 
-namespace CLI.UI.Views.Forums;
+namespace CLI.UI.Views.Subforums;
 
-public class CreateSubforumView : IView
+public class CreateSubforumView(
+    ViewHandler viewHandler,
+    ISubforumRepository subforumRepository,
+    IUserRepository userRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly ISubforumRepository _subforumRepository;
-    private readonly IUserRepository _userRepository;
-    
-    public CreateSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository, IUserRepository userRepository)
-    {
-        _viewHandler = viewHandler;
-        _subforumRepository = subforumRepository;
-        _userRepository = userRepository;
-    }
-
-
     public void Display()
     {
         Console.WriteLine("-- Create Subforum --");
@@ -26,7 +18,7 @@ public class CreateSubforumView : IView
         Console.WriteLine("---------------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -40,13 +32,13 @@ public class CreateSubforumView : IView
                     var name = input.Substring(args[0].Length + 1);
 
                     // Hvis der allerede er et subforum med dette navn
-                    if (_subforumRepository.GetMany().Any(s => s.Name.ToLower() == name.ToLower()))
+                    if (subforumRepository.GetMany().Any(s => s.Name.ToLower() == name.ToLower()))
                         break;
                     // Hvis brugeren ikke findes
-                    if (!_userRepository.GetMany().Any(u => u.UserId == moderatorId))
+                    if (!userRepository.GetMany().Any(u => u.UserId == moderatorId))
                         break;
 
-                    _subforumRepository.AddAsync(new Subforum()
+                    await subforumRepository.AddAsync(new Subforum()
                     {
                         ModeratorId = moderatorId,
                         Name = name
@@ -54,11 +46,12 @@ public class CreateSubforumView : IView
                     
                     break;
             }
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.CreateSubforum);
+            await viewHandler.GoToView(Views.CreateSubforum);
+            Console.WriteLine(e.Message);
         }
     }
 }

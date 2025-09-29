@@ -3,17 +3,8 @@ using RepositoryContracts;
 
 namespace CLI.UI.Views.Users;
 
-public class ManageUserView : IView
+public class ManageUserView(ViewHandler viewHandler, IUserRepository userRepository) : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly IUserRepository _userRepository;
-    
-    public ManageUserView(ViewHandler viewHandler, IUserRepository userRepository)
-    {
-        _viewHandler = viewHandler;
-        _userRepository = userRepository;
-    }
-    
     public void Display()
     {
         Console.WriteLine("-- Manage User --");
@@ -23,14 +14,14 @@ public class ManageUserView : IView
         Console.WriteLine("-----------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
             switch (input.ToLower())
             {
                 case "exit":
-                    _viewHandler.GoToMainMenu();
+                    await viewHandler.GoToMainMenu();
                     break;
                 default:
                     var args = input.Split(' ');
@@ -39,17 +30,17 @@ public class ManageUserView : IView
                     var username = args[0];
                     var password = args[1];
 
-                    _userRepository.UpdateAsync(new User { Username = username, Password = password });
+                    await userRepository.UpdateAsync(new User { Username = username, Password = password });
                     Console.WriteLine($"User {username} changed password to {password}");
                     break;
             }
             
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            _viewHandler.GoToView(Views.ManageUser);
+            await viewHandler.GoToView(Views.ManageUser);
         }
     }
 }

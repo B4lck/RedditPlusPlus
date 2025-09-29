@@ -1,19 +1,13 @@
 ﻿using RepositoryContracts;
 
-namespace CLI.UI.Views.Forums;
+namespace CLI.UI.Views.Subforums;
 
-public class DeleteSubforumView : IView
+public class DeleteSubforumView(
+    ViewHandler viewHandler,
+    ISubforumRepository subforumRepository,
+    IPostRepository postRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly ISubforumRepository _subforumRepository;
-    private readonly IPostRepository _postRepository;
-    
-    public DeleteSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository, IPostRepository postRepository)
-    {
-        _viewHandler = viewHandler;
-        _subforumRepository = subforumRepository;
-        _postRepository = postRepository;
-    }
     public void Display()
     {
         Console.WriteLine("-- Delete Subforum --");
@@ -23,7 +17,7 @@ public class DeleteSubforumView : IView
         Console.WriteLine("---------------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -33,15 +27,16 @@ public class DeleteSubforumView : IView
                     break;
                 default:
                     int subforumId = int.Parse(input);
-                    _subforumRepository.DeleteAsync(subforumId);
-                    _postRepository.DeleteAllFromSubforumAsync(subforumId);
+                    await subforumRepository.DeleteAsync(subforumId);
+                    await postRepository.DeleteAllFromSubforumAsync(subforumId);
                     break;
             }
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.DeleteSubforum);
+            await viewHandler.GoToView(Views.DeleteSubforum);
+            Console.WriteLine(e.Message);
         }
     }
 }

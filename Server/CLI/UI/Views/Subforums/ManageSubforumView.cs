@@ -1,18 +1,11 @@
 ﻿using Entities;
 using RepositoryContracts;
 
-namespace CLI.UI.Views.Forums;
+namespace CLI.UI.Views.Subforums;
 
-public class ManageSubforumView : IView
+public class ManageSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository)
+    : IView
 {
-    private readonly ViewHandler _viewHandler;
-    private readonly ISubforumRepository _subforumRepository;
-    
-    public ManageSubforumView(ViewHandler viewHandler, ISubforumRepository subforumRepository)
-    {
-        _viewHandler = viewHandler;
-        _subforumRepository = subforumRepository;
-    }
     public void Display()
     {
         Console.WriteLine("-- Manage Subforum --");
@@ -24,7 +17,7 @@ public class ManageSubforumView : IView
         Console.WriteLine("---------------------");
     }
 
-    public void HandleInput(string input)
+    public async Task HandleInput(string input)
     {
         try
         {
@@ -36,33 +29,33 @@ public class ManageSubforumView : IView
                     var splitInput = input.Split(" ");
                     var id = int.Parse(splitInput[0]);
                     var command = splitInput[1].ToLower();
-                    Subforum subforum;
                     if (command == "name")
                     {
                         int nameStartIndex = splitInput[0].Length + splitInput[1].Length + 2;
-                        _subforumRepository.UpdateAsync(new Subforum()
+                        await subforumRepository.UpdateAsync(new Subforum()
                         {
                             SubforumId = id,
                             Name = input.Substring(nameStartIndex),
-                            ModeratorId = _subforumRepository.GetSingleAsync(id).Result.ModeratorId
+                            ModeratorId = (await subforumRepository.GetSingleAsync(id)).ModeratorId
                         });
                     }
                     else if (command == "mod")
                     {
-                        _subforumRepository.UpdateAsync(new Subforum()
+                        await subforumRepository.UpdateAsync(new Subforum()
                         {
                             SubforumId = id,
-                            Name = _subforumRepository.GetSingleAsync(id).Result.Name,
+                            Name = subforumRepository.GetSingleAsync(id).Result.Name,
                             ModeratorId = int.Parse(input.Split(" ")[3])
                         });
                     }
                     break;
             }
-            _viewHandler.GoToMainMenu();
+            await viewHandler.GoToMainMenu();
         }
         catch (Exception e)
         {
-            _viewHandler.GoToView(Views.ManageSubforum);
+            await viewHandler.GoToView(Views.ManageSubforum);
+            Console.WriteLine(e.Message);
         }
     }
 }

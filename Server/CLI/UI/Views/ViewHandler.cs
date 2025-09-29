@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using CLI.UI.Views.Forums;
+﻿using CLI.UI.Views.Subforums;
 using CLI.UI.Views.Posts;
 using CLI.UI.Views.Users;
 using Entities;
@@ -10,26 +8,25 @@ namespace CLI.UI.Views;
 
 public class ViewHandler
 {
-    private IPostRepository _posts;
-    private IUserRepository _users;
-    private ISubforumRepository _subforums;
-    private IReactionRepository _reactions;
+    private readonly IPostRepository _posts;
+    private readonly IUserRepository _users;
+    private readonly ISubforumRepository _subforums;
+    private readonly IReactionRepository _reactions;
     
+    private readonly MainMenuView _mainMenuView;
     
-    private MainMenuView _mainMenuView;
+    private readonly CreateUserView _createUserView;
+    private readonly ManageUserView _manageUserView;
+    private readonly DeleteUserView _deleteUserView;
+    private readonly ListUserView _listUserView;
     
-    private CreateUserView _createUserView;
-    private ManageUserView _manageUserView;
-    private DeleteUserView _deleteUserView;
-    private ListUserView _listUserView;
+    private readonly CreateSubforumView _createSubforumView;
+    private readonly ManageSubforumView _manageSubforumView;
+    private readonly ListSubforumView _listSubforumView;
+    private readonly DeleteSubforumView _deleteSubforumView;
+    private readonly OpenSubforumView _openSubforumView;
     
-    private CreateSubforumView _createSubforumView;
-    private ManageSubforumView _manageSubforumView;
-    private ListSubforumView _listSubforumView;
-    private DeleteSubforumView _deleteSubforumView;
-    private OpenSubforumView _openSubforumView;
-    
-    private OpenPostView _openPostView;
+    private readonly OpenPostView _openPostView;
 
     public ViewState ViewState { get; } = new ViewState();
 
@@ -54,12 +51,12 @@ public class ViewHandler
         _manageSubforumView = new ManageSubforumView(this, _subforums);
         _deleteSubforumView = new DeleteSubforumView(this, _subforums, _posts);
         _listSubforumView = new ListSubforumView(this, _subforums);
-        _openSubforumView = new OpenSubforumView(this, _subforums, _posts, _users);
+        _openSubforumView = new OpenSubforumView(this, _posts, _users);
 
-        _openPostView = new OpenPostView(this, _subforums, _posts, _users, _reactions);
+        _openPostView = new OpenPostView(this, _posts, _users, _reactions);
     }
 
-    public void GoToView(Views viewName)
+    public async Task GoToView(Views viewName)
     {
         IView view;
         switch (viewName)
@@ -98,10 +95,10 @@ public class ViewHandler
                 view = _mainMenuView;
                 break;
         }
-        ShowView(view);
+        await ShowView(view);
     }
     
-    private void ShowView(IView view)
+    private async Task ShowView(IView view)
     {
         Console.Clear();
         view.Display();
@@ -112,14 +109,14 @@ public class ViewHandler
             if (input is null)
                 continue;
             
-            view.HandleInput(input);
+            await view.HandleInput(input);
             break;
         }
     }
 
-    public void GoToMainMenu()
+    public async Task GoToMainMenu()
     {
-        ShowView(new MainMenuView(this));
+        await ShowView(_mainMenuView);
     }
 }
 
