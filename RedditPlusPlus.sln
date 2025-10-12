@@ -2,15 +2,19 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{62B8270D-94EE-4C74-989F-4E616CF246EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{2C11443B-D68F-4C9B-BC61-72A0ABF45DC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Server\Entities\Entities.csproj", "{2C11443B-D68F-4C9B-BC61-72A0ABF45DC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryContracts", "RepositoryContracts\RepositoryContracts.csproj", "{BE82F6F8-8478-40DF-BBCC-EC35EA916884}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryContracts", "Server\RepositoryContracts\RepositoryContracts.csproj", "{BE82F6F8-8478-40DF-BBCC-EC35EA916884}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryRepositories", "Server\InMemoryRepositories\InMemoryRepositories.csproj", "{83217AB6-BF61-4373-AE29-F2F655A5A6D0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "Server\CLI\CLI.csproj", "{591AE43C-1FFB-4417-92F4-E095F5EB4E55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileRepositories", "Server\FileRepositories\FileRepositories.csproj", "{C279F38B-7E68-4D60-820F-37BF74AD673F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{975C9FA2-9643-44AF-9163-7EEF58B92E1A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiContracts", "Shared\ApiContracts\ApiContracts.csproj", "{7CE22269-E105-4403-8C77-3DCD0B87ACC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +27,7 @@ Global
 		{83217AB6-BF61-4373-AE29-F2F655A5A6D0} = {62B8270D-94EE-4C74-989F-4E616CF246EB}
 		{591AE43C-1FFB-4417-92F4-E095F5EB4E55} = {62B8270D-94EE-4C74-989F-4E616CF246EB}
 		{C279F38B-7E68-4D60-820F-37BF74AD673F} = {62B8270D-94EE-4C74-989F-4E616CF246EB}
+		{7CE22269-E105-4403-8C77-3DCD0B87ACC8} = {975C9FA2-9643-44AF-9163-7EEF58B92E1A}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2C11443B-D68F-4C9B-BC61-72A0ABF45DC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -45,5 +50,9 @@ Global
 		{C279F38B-7E68-4D60-820F-37BF74AD673F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C279F38B-7E68-4D60-820F-37BF74AD673F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C279F38B-7E68-4D60-820F-37BF74AD673F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CE22269-E105-4403-8C77-3DCD0B87ACC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CE22269-E105-4403-8C77-3DCD0B87ACC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CE22269-E105-4403-8C77-3DCD0B87ACC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CE22269-E105-4403-8C77-3DCD0B87ACC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
