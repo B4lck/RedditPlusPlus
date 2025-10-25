@@ -47,4 +47,9 @@ public class UserInMemoryRepository : IUserRepository
     {
         return users.AsQueryable();
     }
+
+    public Task<bool> VerifyCredentialsAsync(string username, string password)
+    {
+        throw new NotImplementedException("Not implemented in InMemoryRepository");
+    }
 }

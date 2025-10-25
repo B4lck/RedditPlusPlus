@@ -82,4 +82,10 @@ public class UserFileRepository : IUserRepository
         List<User> users = LoadListFromFileAsync().Result;
         return users.AsQueryable();
     }
+
+    public async Task<bool> VerifyCredentialsAsync(string username, string password)
+    {
+        List<User> users = await LoadListFromFileAsync();
+        return users.Any(u => u.Username == username && u.Password == password);
+    }
 }
