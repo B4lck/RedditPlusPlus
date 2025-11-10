@@ -21,7 +21,7 @@ public class OpenSubforumView(
         }
         
         Console.WriteLine($"-- {viewHandler.ViewState.CurrentSubforum.Name} --");
-        Console.WriteLine($"Moderated by: {userRepository.GetSingleAsync(viewHandler.ViewState.CurrentSubforum.ModeratorId).Result.Username}");
+        Console.WriteLine($"Moderated by: {userRepository.GetSingleAsyncById(viewHandler.ViewState.CurrentSubforum.ModeratorId).Result.Username}");
         Console.WriteLine("");
         Console.WriteLine("To create a post, write create, the userid of the author, and the title of the post, press enter and then type the content of the post");
         Console.WriteLine("Example: create [Author id] [Title]");
@@ -45,7 +45,7 @@ public class OpenSubforumView(
         foreach (var post in posts)
         {
             Console.WriteLine($"-- {post.Title} --");
-            Console.WriteLine($"By: {userRepository.GetSingleAsync(post.AuthorId).Result.Username} - Post ID: {post.PostId}");
+            Console.WriteLine($"By: {userRepository.GetSingleAsyncById(post.AuthorId).Result.Username} - Post ID: {post.PostId}");
             Console.WriteLine("-");
             Console.WriteLine($"{post.Content}");
             Console.WriteLine("-");

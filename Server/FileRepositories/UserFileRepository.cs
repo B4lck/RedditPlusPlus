@@ -65,13 +65,25 @@ public class UserFileRepository : IUserRepository
         await UpdateFileAsync(users);
     }
 
-    public async Task<User> GetSingleAsync(int id)
+    public async Task<User> GetSingleAsyncById(int id)
     {
         List<User> users = LoadListFromFileAsync().Result;
         
         User? user = users.SingleOrDefault(u => u.UserId == id);
         if (user is null) throw new InvalidOperationException($"User with ID '{id}' not found");
 
+        await UpdateFileAsync(users);
+        
+        return user;
+    }
+
+    public async Task<User> GetSingleAsyncByUsername(string username)
+    {
+        List<User> users = LoadListFromFileAsync().Result;
+        
+        User? user = users.SingleOrDefault(u => string.Equals(u.Username, username, StringComparison.CurrentCultureIgnoreCase));
+        if (user is null) throw new InvalidOperationException($"User with username '{username}' not found");
+        
         await UpdateFileAsync(users);
         
         return user;
@@ -85,7 +97,14 @@ public class UserFileRepository : IUserRepository
 
     public async Task<bool> VerifyCredentialsAsync(string username, string password)
     {
-        List<User> users = await LoadListFromFileAsync();
-        return users.Any(u => u.Username == username && u.Password == password);
+        try
+        {
+            List<User> users = await LoadListFromFileAsync();
+            return users.Any(u => string.Equals(u.Username, username, StringComparison.CurrentCultureIgnoreCase) && u.Password == password);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ApiContracts
 @using BlazorApp.Services
+@attribute [Authorize]
 @inject HttpSubforumService SubforumService
 @inject HttpUserService UserService
 
@@ -8,50 +9,33 @@
 
 <h1>Reddit++</h1>
 
-<div class="opret-bruger-form">
-    <h2>Opret bruger</h2>
-    <EditForm Model="@_formUserDto" OnValidSubmit="@AddUserPostRequest">
-        <label for="username">username:</label>
-        <InputText id="username" @bind-Value="@_formUserDto.username"/>
-        <label for="password">password:</label>
-        <InputText type="password" id="password" @bind-Value="@_formUserDto.password"/>
-        <button type="submit">Opret bruger</button>
-    </EditForm>
-</div>
-
-@if (_subforums == null)
-{
-    <h1>Loading subforums...</h1>
-}
-else
-{
-    <h2>Subforums</h2>
-    <ul>
-        @foreach (SubforumDTO subforum in _subforums)
-        {
-            <li><a href="/Subforum/@subforum.SubforumId">@subforum.Name</a></li>
-        }
-    </ul>
-}
+<AuthorizeView>
+    <Authorized Context="authUser">
+        <div class="subforums">
+            @if (_subforums == null)
+            {
+            <h1>Loading subforums...</h1>
+            }
+            else
+            {
+            <h2>Subforums</h2>
+            <ul>
+                @foreach (SubforumDTO subforum in _subforums)
+                {
+                <li><a href="/Subforum/@subforum.SubforumId">@subforum.Name</a></li>
+                }
+            </ul>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private List<SubforumDTO>? _subforums;
-    private CreateUserDTO _formUserDto = new ();
 
     protected override async Task OnInitializedAsync()
     {
         _subforums = await SubforumService.GetAllSubforumsAsync(new SubforumSearchFilter());
-    }
-
-    private async void AddUserPostRequest()
-    {
-        if (String.IsNullOrWhiteSpace(_formUserDto.username) || String.IsNullOrWhiteSpace(_formUserDto.password)) throw new Exception("Invalid username or password");
-        await UserService.AddUserAsync(_formUserDto);
-
-        _formUserDto = new();
-        
-        
-        await OnInitializedAsync();
     }
 
 }

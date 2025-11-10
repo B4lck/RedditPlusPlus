@@ -32,10 +32,16 @@ public class HttpUserService : IUserService
 
     public async Task<UserDTO> GetUserAsync(int id)
     {
-        UserDTO? res = await _httpClient.GetFromJsonAsync<UserDTO>($"Users/{id}");
-        
-        if (res == null) throw new KeyNotFoundException();
-
-        return res;
+        try
+        {
+            var res = await _httpClient.GetFromJsonAsync<UserDTO>($"Users/{id}");
+            if (res == null) throw new KeyNotFoundException();
+            
+            return res;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }

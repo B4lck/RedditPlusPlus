@@ -8,14 +8,6 @@ main {
     flex: 1;
 }
 
-nav {
-    display: flex;
-    width: 100%;
-    background: gray;
-    min-height: 100px;
-    align-items: center;
-}
-
 
 #blazor-error-ui {
     background: lightyellow;

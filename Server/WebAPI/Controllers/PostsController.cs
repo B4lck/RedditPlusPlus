@@ -26,7 +26,8 @@ public class PostsController : ControllerBase
             AuthorId = post.AuthorId,
             CommentedOnPostId = post.CommentedOnPostId,
             Content = post.Content,
-            SubforumId = post.SubforumId
+            SubforumId = post.SubforumId,
+            PostId = post.PostId
         };
     }
 
@@ -38,7 +39,8 @@ public class PostsController : ControllerBase
             AuthorId = post.AuthorId,
             CommentedOnPostId = post.CommentedOnPostId,
             Content = post.Content,
-            SubforumId = post.SubforumId
+            SubforumId = post.SubforumId,
+            PostId = post.PostId
         };
     }
     
@@ -92,7 +94,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost("{id}/react")]
-    public async Task<ActionResult<PostDTO>> Like([FromRoute] int id, [FromBody] UserDTO user, [FromQuery] string type)
+    public async Task<ActionResult<PostDTO>> Like([FromRoute] int id, [FromBody] ReactionDTO reaction)
     {
         try
         {
@@ -100,9 +102,9 @@ public class PostsController : ControllerBase
 
             await _reactions.AddAsync(new()
             {
-                ByUserId = user.UserId,
-                PostId = post.PostId,
-                Type = type
+                ByUserId = reaction.ByUserId,
+                PostId = reaction.PostId,
+                Type = reaction.Type,
             });
 
             return Ok();
@@ -114,20 +116,20 @@ public class PostsController : ControllerBase
     }
 
     [HttpDelete("{id}/react")]
-    public async Task<ActionResult<PostDTO>> Dislike([FromRoute] int id, [FromBody] UserDTO user, [FromQuery] string type)
+    public async Task<ActionResult<PostDTO>> Dislike([FromRoute] int id, [FromBody] ReactionDTO reaction)
     {
         try
         {
             Post post = await _posts.GetSingleAsync(id); // thrower hvis opslaget ikke findes
             
-            var reaction = _reactions.GetMany()
-                .Where(r => r.PostId == post.PostId)
-                .Where(r => r.Type == type)
-                .FirstOrDefault(r => r.ByUserId == user.UserId);
+            var targetReaction = _reactions.GetMany()
+                .Where(r => r.PostId == reaction.PostId)
+                .Where(r => r.Type == reaction.Type)
+                .FirstOrDefault(r => r.ByUserId == reaction.ByUserId);
             
-            if (reaction == null) throw new InvalidOperationException("No matching reaction found");
+            if (targetReaction == null) throw new InvalidOperationException("No matching reaction found");
             
-            await _reactions.DeleteAsync(reaction);
+            await _reactions.DeleteAsync(targetReaction);
 
             return Ok();
         }

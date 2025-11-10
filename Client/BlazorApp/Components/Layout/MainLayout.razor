@@ -2,7 +2,11 @@
 
 <div class="page">
     <nav>
-        <a href="/">Gå til forside</a>
+        <AuthorizeView>
+            <Authorized>
+                <Navbar />
+            </Authorized>
+        </AuthorizeView>
     </nav>
     
     <main>

@@ -1,47 +1,50 @@
 ﻿@page "/Subforum/{SubforumId:int}"
 @using ApiContracts
 @using BlazorApp.Services
+@attribute [Authorize]
 @inject HttpPostService PostService
 @inject HttpSubforumService SubforumService
+@inject AuthenticationStateProvider AuthProvider
 
-
-@if (_subforum == null)
-{
-    <h1>Loading...</h1>
-}
-else
-{
-    <h1>r/@_subforum.Name</h1>
-    <div class="opret-post-form">
-        <h2>Læg et opslag op!</h2>
-        <EditForm Model="@_createPostDto" OnValidSubmit="@CreatePost">
-            <label for="title">titel:</label>
-            <InputText id="title" @bind-Value="@_createPostDto.Title"/>
-            <label for="content">indhold:</label>
-            <InputTextArea id="content" @bind-Value="@_createPostDto.Content"/>
-            <label for="author">forfatter id:</label>
-            <InputNumber id="author" @bind-Value="@_createPostDto.AuthorId"/>
-            <button type="submit">Læg op!</button>
-        </EditForm>
-    </div>
-    <h2>Opslag</h2>
-    if (_postsInForum!.Count > 0)
-    {
-        <ul>
-        @foreach(PostDTO post in _postsInForum)
+<AuthorizeView>
+    <Authorized Context="authUser">
+        @if (_subforum == null)
         {
-            if (post.Title != null)
+            <h1>Loading...</h1>
+        }
+        else
+        {
+            <h1>r/@_subforum.Name</h1>
+            <div class="opret-post-form">
+                <h2>Læg et opslag op!</h2>
+                <EditForm Model="@_createPostDto" OnValidSubmit="@CreatePost">
+                    <label for="title">titel:</label>
+                    <InputText id="title" @bind-Value="@_createPostDto.Title"/>
+                    <label for="content">indhold:</label>
+                    <InputTextArea id="content" @bind-Value="@_createPostDto.Content"/>
+                    <button type="submit">Læg op!</button>
+                </EditForm>
+            </div>
+            <h2>Opslag</h2>
+            if (_postsInForum!.Count > 0)
             {
-                <li><a href="/Post/@post.PostId">@post.Title</a></li>
+                <ul>
+                    @foreach(PostDTO post in _postsInForum)
+                    {
+                        if (post.Title != null)
+                        {
+                            <li><a href="/Post/@post.PostId">@post.Title</a></li>
+                        }
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>Ingen opslag endnu</p>
             }
         }
-        </ul>
-    }
-    else
-    {
-        <p>Ingen opslag endnu</p>
-    }
-}
+    </Authorized>
+</AuthorizeView>
 
 @code {
     [Parameter]
@@ -64,7 +67,8 @@ else
     {
         if (String.IsNullOrWhiteSpace(_createPostDto.Title)) throw new Exception();
         if (String.IsNullOrWhiteSpace(_createPostDto.Content)) throw new Exception();
-        
+        _createPostDto.AuthorId = Int32.Parse((await AuthProvider.GetAuthenticationStateAsync()).User.FindFirst("id")!.Value);
+
         await PostService.AddPostAsync(_createPostDto);
 
         _createPostDto = new()
