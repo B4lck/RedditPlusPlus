@@ -58,6 +58,14 @@
         try
         {
             await ((SimpleAuthProvider)AuthProvider).Login(_loginDto.Username, _loginDto.Password);
+            
+            var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+
             Nav.NavigateTo("/");
         }
         catch (Exception e)

@@ -22,7 +22,7 @@ builder.Services.AddScoped<HttpReactionService>();
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
-        options.LoginPath = "/login";  // hvor brugeren sendes hen hvis ikke logget ind
+        options.LoginPath = "/login";  // hvor brugeren sendes den hvis ikke logget ind
         options.LogoutPath = "/logout";
     });
 

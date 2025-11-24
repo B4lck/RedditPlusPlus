@@ -34,9 +34,9 @@ public class OpenSubforumView(
 
         // Henter alle posts fra dette forum
         var posts = postRepository.GetMany().ToList()
-            .FindAll(p => p.SubforumId == viewHandler.ViewState.CurrentSubforum.SubforumId);
+            .FindAll(p => p.InSubforum == viewHandler.ViewState.CurrentSubforum.SubforumId);
 
-        var comments = posts.FindAll(p => p.CommentedOnPostId != null);
+        var comments = posts.FindAll(p => p.CommentedOnPost != null);
         posts.RemoveAll(p => comments.Contains(p));
 
         if (posts.Count == 0)
@@ -45,7 +45,7 @@ public class OpenSubforumView(
         foreach (var post in posts)
         {
             Console.WriteLine($"-- {post.Title} --");
-            Console.WriteLine($"By: {userRepository.GetSingleAsyncById(post.AuthorId).Result.Username} - Post ID: {post.PostId}");
+            Console.WriteLine($"By: {userRepository.GetSingleAsyncById(post.Author).Result.Username} - Post ID: {post.PostId}");
             Console.WriteLine("-");
             Console.WriteLine($"{post.Content}");
             Console.WriteLine("-");
@@ -98,9 +98,9 @@ public class OpenSubforumView(
 
                     await postRepository.AddAsync(new Post()
                     {
-                        AuthorId = authorId,
+                        Author = authorId,
                         Content = content,
-                        SubforumId = viewHandler.ViewState.CurrentSubforum!.SubforumId,
+                        InSubforum = viewHandler.ViewState.CurrentSubforum!.SubforumId,
                         Title = title
                     });
                     break;

@@ -12,7 +12,7 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "workingDirectory": "C:/Users/Nikol/RiderProjects/RedditPlusPlus/Server/CLI/bin/Debug/net8.0",
+      "workingDirectory": "C:/Users/Nikol/RiderProjects/RedditPlusPlus/Server/FileRepositories/bin/Debug/net8.0",
       "launchBrowser": true,
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5123",

@@ -30,7 +30,7 @@ public class OpenPostView(
         Console.WriteLine("");
         Console.WriteLine("");
         Console.WriteLine($"-- {viewHandler.ViewState.CurrentPost.Title} --");
-        Console.WriteLine($"Author: {userRepository.GetSingleAsyncById(viewHandler.ViewState.CurrentPost.AuthorId).Result.Username}");
+        Console.WriteLine($"Author: {userRepository.GetSingleAsyncById(viewHandler.ViewState.CurrentPost.Author).Result.Username}");
         Console.WriteLine("-");
         Console.WriteLine(viewHandler.ViewState.CurrentPost.Content);
         Console.WriteLine("-----------------------------");
@@ -44,10 +44,10 @@ public class OpenPostView(
 
         
         // comments
-        var commentsOnCurrentPost = postRepository.GetMany().ToList().FindAll(c => c.CommentedOnPostId == viewHandler.ViewState.CurrentPost.PostId);
+        var commentsOnCurrentPost = postRepository.GetMany().ToList().FindAll(c => c.CommentedOnPost == viewHandler.ViewState.CurrentPost.PostId);
         foreach (var comment in commentsOnCurrentPost)
         {
-            Console.WriteLine($"    -- ID: {comment.PostId} | By: {userRepository.GetSingleAsyncById(comment.AuthorId).Result.Username}");
+            Console.WriteLine($"    -- ID: {comment.PostId} | By: {userRepository.GetSingleAsyncById(comment.Author).Result.Username}");
             Console.WriteLine($"        {comment.Content}");
             Console.WriteLine("");
         }
@@ -69,10 +69,10 @@ public class OpenPostView(
                     var content = input.Substring(loweredSplitInput[0].Length + loweredSplitInput[1].Length + 2);
                     await postRepository.AddAsync(new Post()
                     {
-                        AuthorId = userId,
+                        Author = userId,
                         Content = content,
-                        SubforumId = viewHandler.ViewState.CurrentPost!.SubforumId,
-                        CommentedOnPostId = viewHandler.ViewState.CurrentPost.PostId,
+                        InSubforum = viewHandler.ViewState.CurrentPost!.InSubforum,
+                        CommentedOnPost = viewHandler.ViewState.CurrentPost.PostId,
                     });
                     await viewHandler.GoToView(Views.OpenPost);
                     break;

@@ -64,7 +64,7 @@ public class PostFileRepository : IPostRepository
         posts.Remove(postToRemove);
         
         // Fjern alle kommentarer
-        var comments = posts.FindAll(p => p.CommentedOnPostId == id);
+        var comments = posts.FindAll(p => p.CommentedOnPost.PostId == id);
         foreach (var comment in comments) await DeleteAsync(comment.PostId);
         
         await UpdateFileAsync(posts);
@@ -88,7 +88,7 @@ public class PostFileRepository : IPostRepository
         
         foreach (var post in posts)
         {
-            if (post.AuthorId == userId) await DeleteAsync(post.PostId);
+            if (post.Author.UserId == userId) await DeleteAsync(post.PostId);
         }
         
         await UpdateFileAsync(posts);

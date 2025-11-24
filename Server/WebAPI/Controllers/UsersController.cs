@@ -1,6 +1,7 @@
 ﻿using ApiContracts;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
 namespace WebAPI.Controllers;
@@ -18,7 +19,7 @@ public class UsersController : ControllerBase
         _postRepository = postRepository;
     }
 
-    private User DTOUserToEntity(UserDTO user)
+    private User DtoUserToEntity(UserDTO user)
     {
         return new()
         {
@@ -27,7 +28,7 @@ public class UsersController : ControllerBase
         };
     }
 
-    private UserDTO EntityUserToDTO(User user)
+    private UserDTO EntityUserToDto(User user)
     {
         return new()
         {
@@ -37,21 +38,24 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDTO>> AddUser([FromBody]UserDTO userDTO)
+    public async Task<ActionResult<UserDTO>> AddUser([FromBody]CreateUserDTO userDto)
     {
-        User createdUser = await _userRepository.AddAsync(DTOUserToEntity(userDTO));
+        User createdUser = await _userRepository.AddAsync(new () {Username = userDto.Username, Password = userDto.Password});
         
-        return Created($"/Users/{createdUser.UserId}", EntityUserToDTO(createdUser));
+        return Created($"/Users/{createdUser.UserId}", EntityUserToDto(createdUser));
     }
 
     [HttpGet]
     public async Task<ActionResult<List<UserDTO>>> GetMany([FromQuery] string? username)
     {
         var users = _userRepository.GetMany();
+
+        if (username != null)
+        {
+            users = users.Where(u => u.Username.ToLower().Contains(username.ToLower()));
+        }
         
-        if (username != null) users = users.Where(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
-        
-        return Ok(users.ToList());
+        return Ok(await users.ToListAsync());
     }
 
     [HttpGet("{id}")]
@@ -71,9 +75,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("update")]
-    public async Task<ActionResult<UserDTO>> Update([FromBody] UserDTO userDTO)
+    public async Task<ActionResult<UserDTO>> Update([FromBody] UserDTO userDto)
     {
-        await _userRepository.UpdateAsync(DTOUserToEntity(userDTO));
+        await _userRepository.UpdateAsync(DtoUserToEntity(userDto));
         
         return Ok("User updated");
     }
